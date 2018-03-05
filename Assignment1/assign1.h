@@ -9,26 +9,25 @@
 #include <unistd.h>
 #include <time.h>
 
-#ifndef THREAD_METHODS
-#define THREAD_METHODS
+#ifndef PRODUCER
+#define PRODUCER
 void *producer_function(void *id);
-void *consumer_function(void *id);
+//void *consumer_function(void *id);
 #endif
 
 using namespace std;
 
-class Product {
-	int id;
-	int time_created;
-	int life;
 
+class Product {
 	public:
+		int id;
+		int time_created;
+		int life;
+
 		Product(int id) {
 			this->id = id;
 			this->time_created = clock();
 			this->life = random() % 1024;
-
-			cout << id << endl;
 		}
 };
 

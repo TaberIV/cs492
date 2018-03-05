@@ -8,7 +8,7 @@
 ***********************************************/
 
 #include "assign1.h"
-#include "threadMethods.cpp"
+#include "producer.cpp"
 
 int main(int argc, char** args) {
 	// Ensure proper number of args

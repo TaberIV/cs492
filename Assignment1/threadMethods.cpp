@@ -16,8 +16,7 @@ void *producer_function(void *id) {
 		p = new Product(product_count);
 		productQueue.push(p);
 	}
-	pthread_mutex_unlock(&product_count_mutex);
-	
+	pthread_mutex_unlock(&product_count_mutex);	
 
 	// Re-run producer function
 	if (product_count < num_products)
@@ -26,6 +25,7 @@ void *producer_function(void *id) {
 		return NULL;
 }
 
+/*
 int fn (int n) {
 	if (n < 0)
 		throw invalid_argument("Must give integer less than zero.");
@@ -35,8 +35,9 @@ int fn (int n) {
 		return fn(n - 1) + fn(n - 2);
 }
 
+
 void *consumer_function(void *id) {
-	/*
+	
 	// Get product from queue
 	Product product;
 
@@ -54,5 +55,4 @@ void *consumer_function(void *id) {
 		usleep(100000);
 		delete product;
 	}
-	*/
-}
+}*/
