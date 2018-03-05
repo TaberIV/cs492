@@ -40,29 +40,39 @@ int main(int argc, char** args) {
 	srandom(seed);
 	t = clock();
 	pthread_mutex_init(&product_count_mutex, NULL);
+	pthread_mutex_init(&products_consumed_mutex, NULL);
 	pthread_cond_init(&queue_not_full, NULL);
 	pthread_cond_init(&queue_not_empty, NULL);
+
+	// Output Head
+	printf("     Thread:\t|  Action  |   Process\t| Stack\n");
+	printf(" ---------------|----------|------------|-------\n");
+
 
 	// Create threads
 	int producerIds[num_producers], consumerIds[num_consumers];
 	pthread_t producers[num_producers], consumers[num_consumers];
 
-
-	for (int i = 0; i < num_consumers; i++) {
-		consumerIds[i] = i;
-		pthread_create(&consumers[i], NULL, consumer_function, &consumerIds[i]);
-	}
 	for (int i = 0; i < num_producers; i++) {
 		producerIds[i] = i;
 		pthread_create(&producers[i], NULL, producer_function, &producerIds[i]);
 	}
 
+	for (int i = 0; i < num_consumers; i++) {
+		consumerIds[i] = i;
+		pthread_create(&consumers[i], NULL, consumer_function, &consumerIds[i]);
+	}
+
+	// Join threads
 	for (int i = 0; i < num_producers; i++)
 		pthread_join(producers[i], NULL);
+
 	for (int i = 0; i < num_consumers; i++)
 		pthread_join(consumers[i], NULL);
 
-	// Destroys mutexes and conds
+	// Destroy recources
 	pthread_mutex_destroy(&product_count_mutex);
+	pthread_mutex_destroy(&products_consumed_mutex);
 	pthread_cond_destroy(&queue_not_full);
+	pthread_cond_destroy(&queue_not_empty);
 }

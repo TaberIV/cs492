@@ -2,7 +2,7 @@
 
 void *producer_function(void *id) {
 	int idNum = *(int *) id;
-	cout << "Producer " + to_string(idNum) + " starting.\n";;
+	printf("   Producer %d\t|  Starts  |     -\t|  -/%d\n", idNum, queue_size);
 
 	Product *p;
 
@@ -10,21 +10,22 @@ void *producer_function(void *id) {
 	pthread_mutex_lock(&product_count_mutex);
 	if (product_count < num_products) {
 		product_count++;
-		pthread_mutex_unlock(&product_count_mutex);
 
 		// Wait if queue is full
 		pthread_mutex_lock(&queue_mutex);
 		while (productQueue.size() == queue_size) {
-			cout << "Producer " + to_string(idNum) + " waiting for space in queue.\n";
+			printf("   Producer %d\t|   Wait   |     -\t|  %d/%d\n", 
+					idNum, (int) productQueue.size(), queue_size);
 			pthread_cond_wait(&queue_not_full, &queue_mutex);
-			cout << "Producer " + to_string(idNum) + " got space in queue.\n";
 		}
 
 		p = new Product(product_count);
-		cout << "Producer " + to_string(idNum) + " pushing product " + to_string(p->id) + " to queue.\n";
+		pthread_mutex_unlock(&product_count_mutex);
 		
 		// Push to queue
 		productQueue.push(p);
+		printf("   Producer %d\t| Produces |     %d\t|  %d/%d\n", 
+				idNum, p->id, (int) productQueue.size(), queue_size);
 		pthread_mutex_unlock(&queue_mutex);
 		pthread_cond_signal(&queue_not_empty);
 
@@ -34,7 +35,7 @@ void *producer_function(void *id) {
 	}
 	else {
 		pthread_mutex_unlock(&product_count_mutex);
-		cout <<  "Producer " + to_string(idNum) + " exiting.\n";
+		printf("   Producer %d\t|   Exit   |     -\t|  -/%d\n", idNum, queue_size);
 		pthread_exit(NULL);
 	}
 }
