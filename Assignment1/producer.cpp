@@ -1,8 +1,7 @@
 #include "assign1.h"
 
-void *producer_function(void *id) {
+void *producer(void *id) {
 	int idNum = *(int *) id;
-	printf("   Producer %d\t| Restarts |     -\t|  -/%d\n", idNum, queue_size);
 
 	Product *p;
 
@@ -31,7 +30,7 @@ void *producer_function(void *id) {
 
 		// Re-run producer function
 		usleep(100000);
-		producer_function(id);
+		producer(id);
 	}
 	else {
 		pthread_mutex_unlock(&product_count_mutex);

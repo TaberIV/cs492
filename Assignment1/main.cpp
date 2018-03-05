@@ -14,7 +14,7 @@
 int main(int argc, char** args) {
 	// Ensure proper number of args
 	if (argc != 8)
-		throw invalid_argument("Wrong number of arguments, should be 7.");
+		throw invalid_argument("Wrong number of arguments, should be 7.\n");
 
 	// Initialize arg variables
 	num_producers = stoi(args[1]);
@@ -54,13 +54,15 @@ int main(int argc, char** args) {
 	pthread_t producers[num_producers], consumers[num_consumers];
 
 	for (int i = 0; i < num_producers; i++) {
+		printf("   Producer %d\t|  Starts  |     -\t|  -/%d\n", i, queue_size);
 		producerIds[i] = i;
-		pthread_create(&producers[i], NULL, producer_function, &producerIds[i]);
+		pthread_create(&producers[i], NULL, producer, &producerIds[i]);
 	}
 
 	for (int i = 0; i < num_consumers; i++) {
+		printf("   Consumer %d\t|  Starts  |     -\t|  -/%d\n", i, queue_size);
 		consumerIds[i] = i;
-		pthread_create(&consumers[i], NULL, consumer_function, &consumerIds[i]);
+		pthread_create(&consumers[i], NULL, (schedule_type == 0) ? (consumer_fifo) : (consumer_rr), &consumerIds[i]);
 	}
 
 	// Join threads

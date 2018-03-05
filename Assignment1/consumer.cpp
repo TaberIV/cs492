@@ -9,9 +9,8 @@ int fn (int n) {
 		return fn(n - 1) + fn(n - 2);
 }
 
-void *consumer_function(void *id) {
+void *consumer_fifo(void *id) {
 	int idNum = *(int *) id;
-	printf("   Consumer %d\t|  Starts  |     -\t|  -/%d\n", idNum, queue_size);
 
 	// Get product from queue
 	pthread_mutex_lock(&products_consumed_mutex);
@@ -47,11 +46,15 @@ void *consumer_function(void *id) {
 		if (p->life == 0) {
 			usleep(100000);
 			delete p;
-			consumer_function(id);
+			consumer_fifo(id);
 		}
 	} else {
 		pthread_mutex_unlock(&products_consumed_mutex);
 		printf("   Consumer %d\t|   Exit   |     -\t|  -/%d\n", idNum, queue_size);
 		pthread_exit(NULL);
 	}
+}
+
+void *consumer_rr(void *id) {
+	throw invalid_argument("Round Robin not implemented.\n");
 }
