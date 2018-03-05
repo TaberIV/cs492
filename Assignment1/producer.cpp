@@ -2,7 +2,7 @@
 
 void *producer_function(void *id) {
 	int idNum = *(int *) id;
-	printf("   Producer %d\t|  Starts  |     -\t|  -/%d\n", idNum, queue_size);
+	printf("   Producer %d\t| Restarts |     -\t|  -/%d\n", idNum, queue_size);
 
 	Product *p;
 
