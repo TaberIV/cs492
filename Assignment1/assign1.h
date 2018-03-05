@@ -12,7 +12,11 @@
 #ifndef PRODUCER
 #define PRODUCER
 void *producer_function(void *id);
-//void *consumer_function(void *id);
+#endif
+
+#ifndef CONSUMER
+#define CONSUMER
+void *consumer_function(void *id);
 #endif
 
 using namespace std;
@@ -43,7 +47,7 @@ int seed;
 queue<Product*> productQueue;
 clock_t t;
 
-int product_count = 0;
-pthread_mutex_t product_count_mutex;
-pthread_cond_t queue_not_full;
+int product_count = 0, products_consumed = 0;
+pthread_mutex_t product_count_mutex, products_consumed_mutex, queue_mutex;
+pthread_cond_t queue_not_full, queue_not_empty;
 #endif

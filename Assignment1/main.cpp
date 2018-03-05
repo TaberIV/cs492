@@ -9,6 +9,7 @@
 
 #include "assign1.h"
 #include "producer.cpp"
+#include "consumer.cpp"
 
 int main(int argc, char** args) {
 	// Ensure proper number of args
@@ -40,19 +41,26 @@ int main(int argc, char** args) {
 	t = clock();
 	pthread_mutex_init(&product_count_mutex, NULL);
 	pthread_cond_init(&queue_not_full, NULL);
+	pthread_cond_init(&queue_not_empty, NULL);
 
 	// Create threads
-	int message;
-	int producerIds[num_producers];
-	pthread_t producers[num_producers];//, *consumers;
+	int producerIds[num_producers], consumerIds[num_consumers];
+	pthread_t producers[num_producers], consumers[num_consumers];
 
+
+	for (int i = 0; i < num_consumers; i++) {
+		consumerIds[i] = i;
+		pthread_create(&consumers[i], NULL, consumer_function, &consumerIds[i]);
+	}
 	for (int i = 0; i < num_producers; i++) {
 		producerIds[i] = i;
-		message = pthread_create(&producers[i], NULL, producer_function, &producerIds[i]);
+		pthread_create(&producers[i], NULL, producer_function, &producerIds[i]);
 	}
 
 	for (int i = 0; i < num_producers; i++)
 		pthread_join(producers[i], NULL);
+	for (int i = 0; i < num_consumers; i++)
+		pthread_join(consumers[i], NULL);
 
 	// Destroys mutexes and conds
 	pthread_mutex_destroy(&product_count_mutex);
