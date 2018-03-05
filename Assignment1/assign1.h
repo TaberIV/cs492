@@ -1,7 +1,7 @@
 #ifndef ASSIGN1_H
 #define ASSIGN1_H
 
-int debug = false;
+int debug;
 
 #include <iostream>
 #include <string>

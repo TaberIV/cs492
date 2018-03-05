@@ -13,7 +13,7 @@
 
 int main(int argc, char** args) {
 	// Ensure proper number of args
-	if (argc != 8)
+	if (argc < 8)
 		throw invalid_argument("Wrong number of arguments, should be 7.\n");
 
 	// Initialize arg variables
@@ -24,6 +24,11 @@ int main(int argc, char** args) {
 	schedule_type = stoi(args[5]);
 	quantum_time = stoi(args[6]);
 	seed = stoi(args[7]);
+	
+	if (argc > 8)
+		debug = stoi(args[8]) == 1;
+	else
+		debug = false;
 	
 	// Print args
 	fflush(stdout);
@@ -65,7 +70,7 @@ int main(int argc, char** args) {
 		producerIds[i] = i;
 		pthread_create(&producers[i], NULL, producer, &producerIds[i]);
 	}
-	producer_time = clock() - producer_time;
+	
 
 	clock_t consumer_time = clock();
 	for (int i = 0; i < num_consumers; i++) {
@@ -75,14 +80,15 @@ int main(int argc, char** args) {
 		consumerIds[i] = i;
 		pthread_create(&consumers[i], NULL, (schedule_type == 0) ? (consumer) : (consumer), &consumerIds[i]);
 	}
-	consumer_time = clock() - consumer_time;
 
 	// Join threads
 	for (int i = 0; i < num_producers; i++)
 		pthread_join(producers[i], NULL);
+	producer_time = clock() - producer_time;
 
 	for (int i = 0; i < num_consumers; i++)
 		pthread_join(consumers[i], NULL);
+	consumer_time = clock() - consumer_time;
 
 	t = clock() - t;
 
