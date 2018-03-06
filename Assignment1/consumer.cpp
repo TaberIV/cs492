@@ -1,3 +1,12 @@
+/***********************************************
+ * CS492 - Operating Systems
+ * Assignment 1
+ *
+ * Authors: E. Taber McFarlin and Matt Swentzel
+ * We pledge our honor that we have abided by 
+ * the Stevens Honor System
+***********************************************/
+
 #include "assign1.h"
 
 int fn (int n) {
@@ -116,7 +125,6 @@ void *consumer(void *id) {
 			// Consume product
 			printf("   Consumer %d\t| Consumes |     %d\t|  %d/%d\n", 
 					idNum, p->id, (int) productQueue.size(), queue_size);
-
 			delete p;
 			
 			pthread_cond_signal(&queue_not_full);

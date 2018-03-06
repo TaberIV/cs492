@@ -1,3 +1,12 @@
+/***********************************************
+ * CS492 - Operating Systems
+ * Assignment 1
+ *
+ * Authors: E. Taber McFarlin and Matt Swentzel
+ * We pledge our honor that we have abided by 
+ * the Stevens Honor System
+***********************************************/
+
 #include "assign1.h"
 
 void *producer(void *id) {
