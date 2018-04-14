@@ -11,10 +11,14 @@
 
 class circularList {
 public:
-	circularList() { }
+	circularList(int data) {
+		Node newNode = new Node(data);
+		
+		return newNode;
+	}
 
 	addAfter(struct Node **prev, int data) {
-		struct Node newNode = new Node(data);
+		Node newNode = new Node(data);
 
 		newNode->next = prev->next;
 		prev->next = newNode;
@@ -40,7 +44,6 @@ private:
 
 		Node (int data) {
 			this->data = data;
-
 		}
 	}
 }
