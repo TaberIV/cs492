@@ -26,6 +26,10 @@ public:
 		pageTable = new PageTable(numMemLocs, page_size, page_offset);
 	}
 
+	int getPageOffset() {
+		return page_offset;
+	}
+
 	void accessMemLoc(int memLoc, int counter) {
 		pageTable->accessMemLoc(memLoc, counter);
 	}

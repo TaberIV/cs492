@@ -53,14 +53,14 @@ int main(int argc, char** args) {
 	vector<Process*> processes;
 	ifstream plist("InputFiles/plist.txt");
 
-	int i = 0, page_start = 0;
+	int i = 0, page_offset = 0;
 	char pID[32], numMemLocs[32];
 
 	plist.getline(pID, 32, ' ');
 	plist.getline(numMemLocs, 32);
 	while (!plist.eof()) {
-		processes.push_back(new Process(stoi(pID), stoi(numMemLocs), page_size, page_start));
-		page_start += stoi(numMemLocs);
+		processes.push_back(new Process(stoi(pID), stoi(numMemLocs), page_size, page_offset));
+		page_offset += stoi(numMemLocs);
 		
 		plist.getline(pID, 32, ' ');
 		plist.getline(numMemLocs, 32);
@@ -72,16 +72,29 @@ int main(int argc, char** args) {
 
 	//Pre-loading memory---------------------------------------
 	const int memoryAmount = 512;
-	const int memoryPerProcess = memory / processes.size();
-	int memory[memoryAmount];
+	const int memoryPerProcess = memoryAmount / processes.size();
+	const int memoryPages = memoryAmount / page_size;
+	int memory[memoryPages];
 
-	printf("Memory Available: %d\n", memory);
+	printf("Memory Available: %d\n", memoryAmount);
 	printf("Memory Per Process: %d\n", memoryPerProcess);
+	printf("Max pages in Memory: %d\n", memoryPages);
 
-
-	for (int i = 0; i < processes.size(); i++) {
-		for (int j = 0; j + page_size <= memoryPerProcess; j += page_size) {
+	// For each process
+	for (int pID = 0; pID < processes.size(); pID++) {
+		printf("\nPre-loading process %d\n", pID);
+		// While there is room add pages in process' memory do so
+		int memoryOffset = pID * memoryPerProcess / page_size;
+		int pageNum = 0;
+		while(memoryOffset + pageNum * page_size <= memoryPerProcess) {
+			printf("accessMemLoc: %d\n", memoryOffset + pageNum * page_size);
+			processes[pID]->accessMemLoc(memoryOffset + pageNum * page_size, 0);
+			printf("Loc1\n");
+			memory[memoryOffset + pageNum] = page_offset / page_size;
 			
+			printf("Page %d loaded into memory %d\n", memoryOffset + pageNum, memoryOffset + pageNum);
+
+			pageNum++;
 		}
 	}
 	//---------------------------------------------------------
