@@ -74,7 +74,7 @@ int main(int argc, char** args) {
 	const int memoryAmount = 512;
 	const int memoryPerProcess = memoryAmount / processes.size();
 	const int memoryPages = memoryAmount / page_size;
-	int memory[memoryPages];
+	int memory[memoryPages]; // An array of the pages in main memory
 
 	printf("Memory Available: %d\n", memoryAmount);
 	printf("Memory Per Process: %d\n", memoryPerProcess);
@@ -82,19 +82,17 @@ int main(int argc, char** args) {
 
 	// For each process
 	for (int pID = 0; pID < processes.size(); pID++) {
-		printf("\nPre-loading process %d\n", pID);
+		printf("Pre-loading process %d\n", pID);
 		// While there is room add pages in process' memory do so
-		int memoryOffset = pID * memoryPerProcess / page_size;
-		int pageNum = 0;
-		while(memoryOffset + pageNum * page_size <= memoryPerProcess) {
-			printf("accessMemLoc: %d\n", memoryOffset + pageNum * page_size);
-			processes[pID]->accessMemLoc(memoryOffset + pageNum * page_size, 0);
-			printf("Loc1\n");
-			memory[memoryOffset + pageNum] = page_offset / page_size;
-			
-			printf("Page %d loaded into memory %d\n", memoryOffset + pageNum, memoryOffset + pageNum);
+		int memoryIndex = pID * memoryPerProcess / page_size;
+		int pageNum = processes[pID]->getPageOffset();
+
+		while((memoryIndex + 1) * page_size <= memoryPerProcess * (pID + 1)) {
+			processes[pID]->accessMemLoc(pageNum * page_size, 0);
+			memory[memoryIndex] = page_offset / page_size;
 
 			pageNum++;
+			memoryIndex++;
 		}
 	}
 	//---------------------------------------------------------

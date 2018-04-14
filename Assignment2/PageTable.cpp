@@ -31,7 +31,7 @@ public:
 }
 
 	void accessMemLoc(int memLoc, int counter) {
-		table[(memLoc - page_offset) / page_size][1] = 1;
-		table[(memLoc - page_offset) / page_size][2] = counter;
+		table[(memLoc / page_size) - page_offset][1] = 1;
+		table[(memLoc / page_size) - page_offset][2] = counter;
 	}
 };
