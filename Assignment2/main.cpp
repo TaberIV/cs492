@@ -8,9 +8,10 @@
 ***********************************************/
 
 #include "assign2.h"
-
+#include "Process.cpp"
 
 int main(int argc, char** args) {
+	// Handle command line arguments---------------------------
 	// Ensure proper number of args
 	const int num_args = 3;
 	if (argc < num_args + 1)
@@ -39,18 +40,52 @@ int main(int argc, char** args) {
 		pre_page = false;
 	else
 		throw invalid_argument("Invalid entry for pre-paging, must be + or -\n");
-
-	/* Debug variable
-	if (argc > num_args + 1)
-		debug = stoi(args[num_args + 1]) == 1;
-	else
-		debug = false;*/
 	
 	// Print args
 	fflush(stdout);
 	printf("Page size: %d\n", page_size);
 	printf("Page replacement Algorithm: %s\n", page_algm == FIFO ? "FIFO" : page_algm == Clock ? "Clock" : "LRU");
-	printf("Pre-paging: %s\n", pre_page ? "On" : "Off");
+	printf("Pre-paging: %s\n\n", pre_page ? "On" : "Off");
+	//---------------------------------------------------------
 
-	
+	// Create Processes from plist*****************************
+	printf("Creating Processes...\n");
+	vector<Process*> processes;
+	ifstream plist("InputFiles/plist.txt");
+
+	int i = 0, page_start = 0;
+	char pID[32], numMemLocs[32];
+
+	plist.getline(pID, 32, ' ');
+	plist.getline(numMemLocs, 32);
+	while (!plist.eof()) {
+		processes.push_back(new Process(stoi(pID), stoi(numMemLocs), page_size, page_start));
+		page_start += stoi(numMemLocs);
+		
+		plist.getline(pID, 32, ' ');
+		plist.getline(numMemLocs, 32);
+		i++;
+	}
+
+	printf("Processes created!\n\n");
+	//*********************************************************
+
+	//Pre-loading memory---------------------------------------
+	const int memoryAmount = 512;
+	const int memoryPerProcess = memory / processes.size();
+	int memory[memoryAmount];
+
+	printf("Memory Available: %d\n", memory);
+	printf("Memory Per Process: %d\n", memoryPerProcess);
+
+
+	for (int i = 0; i < processes.size(); i++) {
+		for (int j = 0; j + page_size <= memoryPerProcess; j += page_size) {
+			
+		}
+	}
+	//---------------------------------------------------------
+
+	//Following ptrace*****************************************
+	//*********************************************************
 }

@@ -10,16 +10,15 @@
 #ifndef ASSIGN2_H
 #define ASSIGN2_H
 
-int debug;
-
 #include <iostream>
+#include <fstream>
+#include <vector>
 #include <string.h>
-#include <queue>
 #include <stdio.h>
 #include <stdlib.h>
 
-enum Algorithm { FIFO, LRU, Clock };
-
 using namespace std;
+
+enum Algorithm { FIFO, LRU, Clock };
 
 #endif
