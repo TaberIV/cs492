@@ -10,8 +10,49 @@
 #include "assign2.h"
 #include "Process.cpp"
 
-void swapIn(int pageNum, int *memory) {
-	printf("Swapping in page %d\n", pageNum);
+int findPageforPrepage(int pageNum, vector<int> &memory, int maxPage) {
+	if (pageNum >= maxPage)
+		return -1;
+
+	for (int i = 0; i < memory.size(); i++) {
+		if (memory[i] == pageNum + 1)
+			return findPageforPrepage(pageNum + 1, memory, maxPage);
+	}
+
+	return pageNum + 1;
+}
+
+//FIFO Swapping Algorithm
+void swapFIFO(int pageNum, vector<int> &memory, int regionStart, int regionEnd){
+	memory.erase(memory.begin() + regionStart);
+	memory.insert((memory.begin() + regionEnd), pageNum);
+}
+
+//LRU Swapping Algorithm
+void swapLRU(int pageNum, vector<int> &memory, int regionStart, int regionEnd){
+
+}
+
+//Clock Swapping Algorithm
+void swapClock(int pageNum, vector<int> &memory, int regionStart, int regionEnd){
+
+}
+
+
+void swapIn(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Algorithm page_alg) {
+	switch (page_alg) {
+		case FIFO:
+			swapFIFO(pageNum, memory, regionStart, regionEnd);
+			break;
+		case LRU:
+			swapLRU(pageNum, memory, regionStart, regionEnd);
+			break;
+		case Clock:
+			swapClock(pageNum, memory, regionStart, regionEnd);
+			break;
+		default: 
+			printf("Invalid Algorithm\n");
+	}	
 }
 
 int main(int argc, char** args) {
@@ -26,13 +67,13 @@ int main(int argc, char** args) {
 	int page_size = stoi(args[1]);
 	
 	// Page Replacement Algorithm
-	Algorithm page_algm;
+	Algorithm page_alg;
 	if (strcmp(args[2], "FIFO") == 0)
-		page_algm = FIFO;
+		page_alg = FIFO;
 	else if (strcmp(args[2], "LRU") == 0)
-		page_algm = LRU;
+		page_alg = LRU;
 	else if (strcmp(args[2], "Clock") == 0)
-		page_algm = Clock;
+		page_alg = Clock;
 	else
 		throw invalid_argument("Invalid Page Replacement Algorithm. Valid choices: FIFO, LRU, Clock.\n");
 
@@ -48,7 +89,7 @@ int main(int argc, char** args) {
 	// Print args
 	fflush(stdout);
 	printf("Page size: %d\n", page_size);
-	printf("Page replacement Algorithm: %s\n", page_algm == FIFO ? "FIFO" : page_algm == Clock ? "Clock" : "LRU");
+	printf("Page replacement Algorithm: %s\n", page_alg == FIFO ? "FIFO" : page_alg == Clock ? "Clock" : "LRU");
 	printf("Pre-paging: %s\n\n", pre_page ? "On" : "Off");
 	//---------------------------------------------------------
 
@@ -57,17 +98,24 @@ int main(int argc, char** args) {
 	vector<Process*> processes;
 	ifstream plist("InputFiles/plist.txt");
 
-	int i = 0, page_offset = 0;
-	char pID_str[32], numMemLocs[32];
+	int i = 0, page_offset = 0, pID, numMemLocs;
+	char pID_str[32], numMemLocs_str[32];
 
 	plist.getline(pID_str, 32, ' ');
-	plist.getline(numMemLocs, 32);
+	plist.getline(numMemLocs_str, 32);
 	while (!plist.eof()) {
-		processes.push_back(new Process(stoi(pID_str), stoi(numMemLocs), page_size, page_offset));
-		page_offset += stoi(numMemLocs) / page_size;
-		
+		pID = stoi(pID_str);
+		numMemLocs = stoi(numMemLocs_str);
+
+		processes.push_back(new Process(pID, numMemLocs, page_size, page_offset));
+		page_offset += numMemLocs / page_size;
+		if (numMemLocs % page_size != 0)
+			page_offset++;
+
+		printf("Page Offset: %d\n", page_offset);
+
 		plist.getline(pID_str, 32, ' ');
-		plist.getline(numMemLocs, 32);
+		plist.getline(numMemLocs_str, 32);
 		i++;
 	}
 
@@ -77,53 +125,75 @@ int main(int argc, char** args) {
 	//Pre-loading memory---------------------------------------
 	const int memoryAmount = 512;
 	const int memoryPerProcess = memoryAmount / processes.size();
-	const int memoryPages = memoryAmount / page_size;
-	int memory[memoryPages]; // An array of the pages in main memory
+	const int pagesPerProcess = memoryPerProcess / page_size;
+	const int totalPages = pagesPerProcess * processes.size();
+	vector<int> memory; // An array of the pages in main memory
 
 	printf("Memory Available: %d\n", memoryAmount);
 	printf("Memory Per Process: %d\n", memoryPerProcess);
-	printf("Max pages in Memory: %d\n", memoryPages);
+	printf("Pages In Memory Per Process: %d\n\n", pagesPerProcess);
 
 	// For each process
 	for (int pID = 0; pID < processes.size(); pID++) {
 		printf("Pre-loading process %d\n", pID);
 		// While there is room add pages in process' memory do so
-		int memoryIndex = pID * memoryPerProcess / page_size;
+		int memoryIndex = pID * pagesPerProcess;
 		int pageNum = processes[pID]->getPageOffset();
-		while((memoryIndex + 1) * page_size <= memoryPerProcess * (pID + 1)) {
+		int processPages = 0;
+		while(processPages < pagesPerProcess) {
 			int validBit = processes[pID]->accessMemLoc(pageNum * page_size, 0);
-			//printf("Page %d accessed in pID %d, vb: %d\n", pageNum, pID, validBit);
 
-			memory[memoryIndex] = page_offset / page_size;
+			memory.insert(memory.begin() + memoryIndex, pageNum);
 
 			pageNum++;
 			memoryIndex++;
+			processPages++;
 		}
 	}
+
+	// int printStart = 0, printEnd = memory.size();
+	// for (int i = printStart; i < printEnd; i++) {
+	// 	printf("memory[%d] = %d\n", i, memory[i]);
+	// }
 	//---------------------------------------------------------
 
 	//Following ptrace*****************************************
 	printf("\nFollowing ptrace.txt\n");
-	unsigned long counter = 0;
+	unsigned /*long*/ counter = 0;
 	int swapCounter;
 	
 	ifstream ptrace("InputFiles/ptrace.txt");
 
 	char memLoc_str[32];
-	int pID, memLoc, validBit;
+	int memLoc, validBit;
 
 	ptrace.getline(pID_str, 32, ' ');
 	ptrace.getline(memLoc_str, 32);
 	while (!ptrace.eof()) {
 		pID = stoi(pID_str);
 		memLoc = stoi(memLoc_str);
+		int pageNum = memLoc / page_size + processes[pID]->getPageOffset();
 
-		validBit = processes[pID]->accessMemLoc(memLoc + processes[pID]->getPageOffset(), counter);
-		//printf("valid bit: %d\n", validBit);
+		validBit = processes[pID]->accessMemLoc(memLoc + processes[pID]->getMemoryOffset(), counter);
+
+
 		// Do a page swap
 		if (validBit == 0) {
 			swapCounter++;
-			swapIn(memLoc + processes[pID]->getPageOffset(), memory);
+
+			int regionStart = pagesPerProcess * pID;
+			int regionEnd = pagesPerProcess * (pID + 1) - 1;
+
+			swapIn(pageNum, memory, regionStart, regionEnd, page_alg);
+
+			if (pre_page) {
+				int maxPage = processes[pID]->getGreatestPageNum();
+				int prePageNum = findPageforPrepage(pageNum, memory, maxPage);
+
+				if (prePageNum > 0) {
+					swapIn(prePageNum, memory, regionStart, regionEnd, page_alg);
+				}
+			}
 		}
 
 		counter++;
@@ -131,4 +201,6 @@ int main(int argc, char** args) {
 		ptrace.getline(memLoc_str, 32);
 	}
 	//*********************************************************
+
+	printf("%d\n", swapCounter);
 }

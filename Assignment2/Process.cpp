@@ -8,29 +8,65 @@
 ***********************************************/
 
 #include "assign2.h"
-#include "PageTable.cpp"
+
+struct Page{
+	int pageNum;
+	int validBit;
+	int LTA;
+};
 
 class Process {
 private:
-	int page_offset;
+	int page_size;
+	vector<Page> pageTable;
 
 public:
-	int pID;
-	PageTable *pageTable;
+	int page_offset;
 
 	Process(int pID, int numMemLocs, int page_size, int page_offset) {
-		this->pID = pID;
 		this->page_offset = page_offset;
+		this->page_size = page_size;
 		
-		// Create page Table
-		pageTable = new PageTable(numMemLocs, page_size, page_offset);
+		// Create Page Table
+		int numPages = numMemLocs / page_size;
+		
+		if (numMemLocs % page_size != 0)
+			numPages++;
+
+		for (int i = 0; i < numPages; i++) {
+			Page p;
+			p.pageNum = i + page_offset;
+			p.validBit = 0;
+			p.LTA = 0;
+
+			pageTable.push_back(p);
+		}
 	}
 
 	int getPageOffset() {
 		return page_offset;
 	}
 
+	int getMemoryOffset() {
+		return page_offset * page_size;
+	}
+
 	int accessMemLoc(int memLoc, int counter) {
-		return pageTable->accessMemLoc(memLoc, counter);
+		Page p = pageTable[(memLoc / page_size) - page_offset];
+		
+		int validBit = p.validBit;
+		p.validBit = 1;
+		p.LTA = counter;
+		pageTable[(memLoc / page_size) - page_offset] = p;
+
+		return validBit;
+	}
+
+	int getGreatestPageNum() {
+		return page_offset + pageTable.size();
+	}
+
+	void swapOut(int memLoc) {
+		pageTable[(memLoc / page_size) - page_offset].validBit = 0;
 	}
 };
