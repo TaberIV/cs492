@@ -24,14 +24,34 @@ public:
 	if (numMemLocs % page_size != 0)
 		numPages++;
 
+	printf("Memory Locations: %d\n", numMemLocs);
 	for (int i = 0; i < numPages; i++) {
 		int page[3] = {i + page_offset, 0, 0};
+
 		table.push_back(page);
+
+		int *row;
+		row = table[i];
+
+		printf("table[%d] = [%d, %d, %d]\n", i, row[0], row[1], row[2]);
 	}
 }
 
-	void accessMemLoc(int memLoc, int counter) {
-		table[(memLoc / page_size) - page_offset][1] = 1;
-		table[(memLoc / page_size) - page_offset][2] = counter;
+	int accessMemLoc(int memLoc, int counter) {
+		int *row;
+		printf("table[%d] = ", (memLoc / page_size) - page_offset);
+		row = table[(memLoc / page_size) - page_offset];
+
+		printf("[%d, %d, %d]\n", row[0], row[1], row[2]);
+
+		// table[(memLoc / page_size) - page_offset][1] = 1;
+		// table[(memLoc / page_size) - page_offset][2] = counter;
+
+		int validBit = 1;
+		return validBit;
+	}
+
+	void swapOut(int memLoc) {
+		table[(memLoc / page_size) - page_offset][1] = 0;
 	}
 };

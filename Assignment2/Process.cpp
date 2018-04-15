@@ -30,7 +30,7 @@ public:
 		return page_offset;
 	}
 
-	void accessMemLoc(int memLoc, int counter) {
-		pageTable->accessMemLoc(memLoc, counter);
+	int accessMemLoc(int memLoc, int counter) {
+		return pageTable->accessMemLoc(memLoc, counter);
 	}
 };

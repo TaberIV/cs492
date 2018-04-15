@@ -10,6 +10,10 @@
 #include "assign2.h"
 #include "Process.cpp"
 
+void swapIn(int pageNum, int *memory) {
+	printf("Swapping in page %d\n", pageNum);
+}
+
 int main(int argc, char** args) {
 	// Handle command line arguments---------------------------
 	// Ensure proper number of args
@@ -54,15 +58,15 @@ int main(int argc, char** args) {
 	ifstream plist("InputFiles/plist.txt");
 
 	int i = 0, page_offset = 0;
-	char pID[32], numMemLocs[32];
+	char pID_str[32], numMemLocs[32];
 
-	plist.getline(pID, 32, ' ');
+	plist.getline(pID_str, 32, ' ');
 	plist.getline(numMemLocs, 32);
 	while (!plist.eof()) {
-		processes.push_back(new Process(stoi(pID), stoi(numMemLocs), page_size, page_offset));
-		page_offset += stoi(numMemLocs);
+		processes.push_back(new Process(stoi(pID_str), stoi(numMemLocs), page_size, page_offset));
+		page_offset += stoi(numMemLocs) / page_size;
 		
-		plist.getline(pID, 32, ' ');
+		plist.getline(pID_str, 32, ' ');
 		plist.getline(numMemLocs, 32);
 		i++;
 	}
@@ -86,9 +90,10 @@ int main(int argc, char** args) {
 		// While there is room add pages in process' memory do so
 		int memoryIndex = pID * memoryPerProcess / page_size;
 		int pageNum = processes[pID]->getPageOffset();
-
 		while((memoryIndex + 1) * page_size <= memoryPerProcess * (pID + 1)) {
-			processes[pID]->accessMemLoc(pageNum * page_size, 0);
+			int validBit = processes[pID]->accessMemLoc(pageNum * page_size, 0);
+			//printf("Page %d accessed in pID %d, vb: %d\n", pageNum, pID, validBit);
+
 			memory[memoryIndex] = page_offset / page_size;
 
 			pageNum++;
@@ -98,5 +103,32 @@ int main(int argc, char** args) {
 	//---------------------------------------------------------
 
 	//Following ptrace*****************************************
+	printf("\nFollowing ptrace.txt\n");
+	unsigned long counter = 0;
+	int swapCounter;
+	
+	ifstream ptrace("InputFiles/ptrace.txt");
+
+	char memLoc_str[32];
+	int pID, memLoc, validBit;
+
+	ptrace.getline(pID_str, 32, ' ');
+	ptrace.getline(memLoc_str, 32);
+	while (!ptrace.eof()) {
+		pID = stoi(pID_str);
+		memLoc = stoi(memLoc_str);
+
+		validBit = processes[pID]->accessMemLoc(memLoc + processes[pID]->getPageOffset(), counter);
+		//printf("valid bit: %d\n", validBit);
+		// Do a page swap
+		if (validBit == 0) {
+			swapCounter++;
+			swapIn(memLoc + processes[pID]->getPageOffset(), memory);
+		}
+
+		counter++;
+		ptrace.getline(pID_str, 32, ' ');
+		ptrace.getline(memLoc_str, 32);
+	}
 	//*********************************************************
 }
