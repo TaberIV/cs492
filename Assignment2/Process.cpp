@@ -13,17 +13,19 @@ struct Page{
 	int pageNum;
 	int validBit;
 	int LTA;
+	int R;
 };
 
 class Process {
 private:
-	int page_size;
+	int pID, page_size;
 	vector<Page> pageTable;
 
 public:
 	int page_offset;
 
 	Process(int pID, int numMemLocs, int page_size, int page_offset) {
+		this->pID = pID;
 		this->page_offset = page_offset;
 		this->page_size = page_size;
 		
@@ -57,6 +59,8 @@ public:
 		int validBit = p.validBit;
 		p.validBit = 1;
 		p.LTA = counter;
+		p.R = 1;
+
 		pageTable[(memLoc / page_size) - page_offset] = p;
 
 		return validBit;
@@ -66,7 +70,38 @@ public:
 		return page_offset + pageTable.size();
 	}
 
-	void swapOut(int memLoc) {
-		pageTable[(memLoc / page_size) - page_offset].validBit = 0;
+	void swapOut(int pageNum) {
+		Page p = pageTable[pageNum - page_offset];
+
+		p.validBit = 0;
+
+		pageTable[pageNum - page_offset] = p;
+	}
+
+	int getCounter(int pageNum) {
+		return pageTable[pageNum - page_offset].LTA;
+	}
+
+	int tickR(int pageNum) {
+		Page p = pageTable[pageNum - page_offset];
+		
+		int R = p.R;
+		p.R = 0;
+		pageTable[pageNum - page_offset] = p;
+
+		return R;
+	}
+
+	int getPID() {
+		return pID;
+	}
+
+	void prepage(int pageNum) {
+		Page p = pageTable[pageNum - page_offset];
+
+		p.validBit = 1;
+		p.R = 1;
+
+		pageTable[pageNum - page_offset] = p;
 	}
 };

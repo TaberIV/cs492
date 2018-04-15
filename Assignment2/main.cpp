@@ -10,45 +10,72 @@
 #include "assign2.h"
 #include "Process.cpp"
 
+vector<int> clockHands;
+
 int findPageforPrepage(int pageNum, vector<int> &memory, int maxPage) {
 	if (pageNum >= maxPage)
 		return -1;
 
 	for (int i = 0; i < memory.size(); i++) {
-		if (memory[i] == pageNum + 1)
+		if (memory[i] == pageNum + 1) {
 			return findPageforPrepage(pageNum + 1, memory, maxPage);
+		}
 	}
 
 	return pageNum + 1;
 }
 
 //FIFO Swapping Algorithm
-void swapFIFO(int pageNum, vector<int> &memory, int regionStart, int regionEnd){
+void swapFIFO(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Process *p){
+	p->swapOut(memory[regionStart]);
+	
 	memory.erase(memory.begin() + regionStart);
 	memory.insert((memory.begin() + regionEnd), pageNum);
 }
 
 //LRU Swapping Algorithm
-void swapLRU(int pageNum, vector<int> &memory, int regionStart, int regionEnd){
+void swapLRU(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Process *p){
+	int LRUpage, counter_min = -1;
 
+	for (int i = regionStart; i <= regionEnd; i++) {
+		if (p->getCounter(memory[i]) < counter_min || counter_min < 0) {
+			counter_min = p->getCounter(memory[i]);
+			LRUpage = i;
+		}
+	}
+
+	p->swapOut(memory[LRUpage]);
+
+	memory.erase(memory.begin() + LRUpage);
+	memory.insert((memory.begin() + LRUpage), pageNum);
 }
 
 //Clock Swapping Algorithm
-void swapClock(int pageNum, vector<int> &memory, int regionStart, int regionEnd){
+void swapClock(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Process *p){
+	int pID = p->getPID();
+	int memoryIndex = clockHands[pID] + regionStart;
+	clockHands[pID] = (clockHands[pID] + 1) % ((regionEnd - regionStart) + 1);
 
+	if (p->tickR(memory[memoryIndex]) == 0) {
+		p->swapOut(memory[memoryIndex]);
+
+		memory.erase(memory.begin() + memoryIndex);
+		memory.insert((memory.begin() + regionStart), pageNum);
+	} else
+		swapClock(pageNum, memory, regionStart, regionEnd, p);
 }
 
-
-void swapIn(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Algorithm page_alg) {
+// Function that abstracts the different swapping algorithms from main
+void swapIn(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Algorithm page_alg, Process *p) {
 	switch (page_alg) {
 		case FIFO:
-			swapFIFO(pageNum, memory, regionStart, regionEnd);
+			swapFIFO(pageNum, memory, regionStart, regionEnd, p);
 			break;
 		case LRU:
-			swapLRU(pageNum, memory, regionStart, regionEnd);
+			swapLRU(pageNum, memory, regionStart, regionEnd, p);
 			break;
 		case Clock:
-			swapClock(pageNum, memory, regionStart, regionEnd);
+			swapClock(pageNum, memory, regionStart, regionEnd, p);
 			break;
 		default: 
 			printf("Invalid Algorithm\n");
@@ -90,11 +117,10 @@ int main(int argc, char** args) {
 	fflush(stdout);
 	printf("Page size: %d\n", page_size);
 	printf("Page replacement Algorithm: %s\n", page_alg == FIFO ? "FIFO" : page_alg == Clock ? "Clock" : "LRU");
-	printf("Pre-paging: %s\n\n", pre_page ? "On" : "Off");
+	printf("Pre-paging: %s\n", pre_page ? "On" : "Off");
 	//---------------------------------------------------------
 
 	// Create Processes from plist*****************************
-	printf("Creating Processes...\n");
 	vector<Process*> processes;
 	ifstream plist("InputFiles/plist.txt");
 
@@ -112,14 +138,13 @@ int main(int argc, char** args) {
 		if (numMemLocs % page_size != 0)
 			page_offset++;
 
-		printf("Page Offset: %d\n", page_offset);
-
 		plist.getline(pID_str, 32, ' ');
 		plist.getline(numMemLocs_str, 32);
 		i++;
-	}
 
-	printf("Processes created!\n\n");
+		if (page_alg == Clock)
+			clockHands.insert(clockHands.begin(), 0);
+	}
 	//*********************************************************
 
 	//Pre-loading memory---------------------------------------
@@ -129,13 +154,8 @@ int main(int argc, char** args) {
 	const int totalPages = pagesPerProcess * processes.size();
 	vector<int> memory; // An array of the pages in main memory
 
-	printf("Memory Available: %d\n", memoryAmount);
-	printf("Memory Per Process: %d\n", memoryPerProcess);
-	printf("Pages In Memory Per Process: %d\n\n", pagesPerProcess);
-
 	// For each process
 	for (int pID = 0; pID < processes.size(); pID++) {
-		printf("Pre-loading process %d\n", pID);
 		// While there is room add pages in process' memory do so
 		int memoryIndex = pID * pagesPerProcess;
 		int pageNum = processes[pID]->getPageOffset();
@@ -150,17 +170,12 @@ int main(int argc, char** args) {
 			processPages++;
 		}
 	}
-
-	// int printStart = 0, printEnd = memory.size();
-	// for (int i = printStart; i < printEnd; i++) {
-	// 	printf("memory[%d] = %d\n", i, memory[i]);
-	// }
 	//---------------------------------------------------------
 
 	//Following ptrace*****************************************
 	printf("\nFollowing ptrace.txt\n");
-	unsigned /*long*/ counter = 0;
-	int swapCounter;
+	unsigned long counter = 0;
+	unsigned long swapCounter = 0;
 	
 	ifstream ptrace("InputFiles/ptrace.txt");
 
@@ -170,6 +185,7 @@ int main(int argc, char** args) {
 	ptrace.getline(pID_str, 32, ' ');
 	ptrace.getline(memLoc_str, 32);
 	while (!ptrace.eof()) {
+		counter++;
 		pID = stoi(pID_str);
 		memLoc = stoi(memLoc_str);
 		int pageNum = memLoc / page_size + processes[pID]->getPageOffset();
@@ -184,23 +200,23 @@ int main(int argc, char** args) {
 			int regionStart = pagesPerProcess * pID;
 			int regionEnd = pagesPerProcess * (pID + 1) - 1;
 
-			swapIn(pageNum, memory, regionStart, regionEnd, page_alg);
+			swapIn(pageNum, memory, regionStart, regionEnd, page_alg, processes[pID]);
 
 			if (pre_page) {
 				int maxPage = processes[pID]->getGreatestPageNum();
 				int prePageNum = findPageforPrepage(pageNum, memory, maxPage);
 
 				if (prePageNum > 0) {
-					swapIn(prePageNum, memory, regionStart, regionEnd, page_alg);
+					swapIn(prePageNum, memory, regionStart, regionEnd, page_alg, processes[pID]);
+					processes[pID]->prepage(prePageNum);
 				}
 			}
 		}
 
-		counter++;
 		ptrace.getline(pID_str, 32, ' ');
 		ptrace.getline(memLoc_str, 32);
 	}
 	//*********************************************************
 
-	printf("%d\n", swapCounter);
+	printf("%lu Accesses, %lu swaps\n", counter, swapCounter);
 }
