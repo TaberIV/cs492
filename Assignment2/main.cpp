@@ -25,7 +25,7 @@ int findPageforPrepage(int pageNum, vector<int> &memory, int maxPage) {
 	return pageNum + 1;
 }
 
-//FIFO Swapping Algorithm
+// FIFO Swapping Algorithm
 void swapFIFO(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Process *p){
 	p->swapOut(memory[regionStart]);
 	
@@ -33,7 +33,7 @@ void swapFIFO(int pageNum, vector<int> &memory, int regionStart, int regionEnd, 
 	memory.insert((memory.begin() + regionEnd), pageNum);
 }
 
-//LRU Swapping Algorithm
+// LRU Swapping Algorithm
 void swapLRU(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Process *p){
 	int LRUpage, counter_min = -1;
 
@@ -50,7 +50,7 @@ void swapLRU(int pageNum, vector<int> &memory, int regionStart, int regionEnd, P
 	memory.insert((memory.begin() + LRUpage), pageNum);
 }
 
-//Clock Swapping Algorithm
+// Clock Swapping Algorithm
 void swapClock(int pageNum, vector<int> &memory, int regionStart, int regionEnd, Process *p){
 	int pID = p->getPID();
 	int memoryIndex = clockHands[pID] + regionStart;
