@@ -1,0 +1,3 @@
+  2104151      4 -rw-r--r--   1 taber    taber          31 Apr 20 15:52 ./A/text.txt
+  2104148      4 -rw-r--r--   1 taber    taber          11 Apr 20 15:53 ./dir_list.txt
+  2104152      0 -rw-r--r--   1 taber    taber           0 Apr 20 15:53 ./file_list.txt
