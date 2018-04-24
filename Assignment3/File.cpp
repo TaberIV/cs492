@@ -21,6 +21,12 @@ public:
 		time(&time_stamp);
 	}
 
+	File(string name, int size) {
+		this->name = name;
+		this->size = size;
+		time(&time_stamp);
+	}
+
 	string toString() {
 		string sizeString = to_string(size);
 		string timeString = ctime(&time_stamp);
