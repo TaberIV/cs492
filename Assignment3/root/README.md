@@ -1,1 +1,1 @@
-fake read me lol
+This is a readme that contains some shit

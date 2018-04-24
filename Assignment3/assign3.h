@@ -11,13 +11,11 @@
 #define ASSIGN3_H
 
 #include <iostream>
-#include <fstream>
-#include <vector>
 #include <string>
+#include <vector>
+#include <fstream>
+#include <queue>
 #include <time.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 using namespace std;
 

@@ -1,4 +1,7 @@
-  2104151      4 -rw-r--r--   1 taber    taber          31 Apr 23 18:42 ./A/text.txt
-   396668     24 -rw-rw-r--   1 taber    taber       17920 Apr 23 18:44 ./A/C/funny.gif
-  2104152      4 -rw-r--r--   1 taber    taber          38 Apr 23 18:43 ./A/foo.py
-  2112282      4 -rw-r--r--   1 taber    taber          17 Apr 23 19:35 ./README.md
+  1705196      4 -rw-rw-r--   1 taber    taber        3273 Apr 24 04:03 ./B/Users/Matt/Games/Fighting/DragonBallFighterZ
+  1705201      4 -rw-rw-r--   1 taber    taber        3277 Apr 24 04:03 ./B/Users/Matt/Games/Fighting/GuiltyGear
+  1705199      8 -rw-r--r--   1 taber    taber        6548 Apr 24 04:03 ./B/Users/Matt/Games/RPGs/XenobladeChronicles2
+  1843018      4 -rw-r--r--   1 taber    taber         931 Apr 24 03:59 ./B/Users/Taber/Code/C++/File.cpp
+  1843016      8 -rw-r--r--   1 taber    taber        4913 Apr 24 03:59 ./B/Users/Taber/Code/C++/main.cpp
+  1843017      8 -rw-r--r--   1 taber    taber        4797 Apr 24 03:59 ./B/Users/Taber/Code/C++/Directory.cpp
+  1601895      4 -rw-r--r--   1 taber    taber          41 Apr 24 02:42 ./README.md
