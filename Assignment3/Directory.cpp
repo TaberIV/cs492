@@ -8,12 +8,9 @@
 ***********************************************/
 
 #include "assign3.h"
-#include "File.cpp"
 
 class Directory {
 public:
-	string name;
-
 	// Constructor for creating
 	// hierarchicy from input files
 	Directory(string fileListPath, string dirListPath) {
@@ -46,14 +43,14 @@ public:
 			path = path.substr(nextSlash + 1); 
 			while ((nextSlash = path.find('/')) != string::npos) {
 				subdirParentName = path.substr(0, nextSlash);
-				subdirParent = subdirParent->getSubdirectory(subdirParentName);
+				subdirParent = subdirParent->getSubdir(subdirParentName);
 
 				if (subdirParent == NULL)
 					throw invalid_argument("Directory input defines subdirectory before parent directoriy.");
 
 				path = path.substr(nextSlash + 1);
 			}
-			subdirParent->addDirectory(path);
+			Directory *d = subdirParent->addDir(path);
 			dirList.getline(dirPath, maxStrLen);
 		}
 
@@ -63,7 +60,7 @@ public:
 			string fileInfo2 = fileInfo;
 
 			// Cut out uneeded info
-			fileInfo2 = fileInfo2.substr(46); 
+			fileInfo2 = fileInfo2.substr(46);
 			while (fileInfo2[0] == ' ')
 				fileInfo2 = fileInfo2.substr(1);
 
@@ -78,7 +75,7 @@ public:
 			int nextSlash;
 			while ((nextSlash = path.find('/')) != string::npos) {
 				directoryName = path.substr(0, nextSlash);
-				dir = dir->getSubdirectory(directoryName);
+				dir = dir->getSubdir(directoryName);
 
 				if (dir == NULL)
 					throw invalid_argument("File belongs to nonexistant directory.");
@@ -100,55 +97,70 @@ public:
 		this->parent = parent;
 	}
 
-	void addFile(string fileName, int size) {
+	File *addFile(string fileName, int size) {
 		File *f = new File(fileName, size);
-		files.push_back(*f);
+		files.push_back(f);
+
+		return f;
 	}
 
-	void addFile(string fileName) {
-		File *f = new File(fileName);
-		files.push_back(*f);
-	}
-
-	void addDirectory(string subdirName) {
-		Directory *d = new Directory(subdirName, this);
-		subdirs.push_back(*d);
-	}
-
-	Directory *getSubdirectory(string subdirName) {
-		for (int i = 0; i < subdirs.size(); i++) {
-			if (subdirs[i].name == subdirName)
-				return &subdirs[i];
+	File *getFile(string fileName) {
+		for (int i = 0; i < files.size(); i++) {
+			if (files[i]->name == fileName)
+				return files[i];
 		}
 
 		return NULL;
 	}
 
-	string toString() {
+	Directory *addDir(string subdirName) {
+		Directory *d = new Directory(subdirName, this);
+		subdirs.push_back(d);
+
+		return d;
+	}
+
+	Directory *getSubdir(string subdirName) {
+		for (int i = 0; i < subdirs.size(); i++) {
+			if (subdirs[i]->name == subdirName)
+				return subdirs[i];
+		}
+
+		return NULL;
+	}
+
+	Directory *getParent() {
+		return parent;
+	}
+
+	string getName() {
 		return name;
 	}
 
 	void ls() {
 		cout << "Subdirectories:" << endl ;
 		for (int i = 0; i < subdirs.size(); i++) {
-			cout << subdirs[i].toString() << endl;
+			cout << subdirs[i]->name << endl;
 		}
 
 		cout << "\nFiles:" << endl;
 		for (int i = 0; i < files.size(); i++) {
-			cout << files[i].toString() << endl;
+			cout << files[i]->toString() << endl;
 		}
+
+		cout << endl;
 	}
 
 	string getPath() {
 		if (parent == NULL)
-			return name + "/";
+			return name;
 		else
-			return parent->getPath() + name + "/";
+			return parent->getPath() + "/" + name;
 	}
 
 private:
+	string name;
 	Directory *parent;
-	vector<File> files;
-	vector<Directory> subdirs;
+	vector<File*> files;
+	vector<Directory*> subdirs;
 };

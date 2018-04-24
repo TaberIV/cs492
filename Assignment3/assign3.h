@@ -21,4 +21,14 @@
 
 using namespace std;
 
+#ifndef FILE
+#define FILE
+#include "File.cpp"
+#endif
+
+#ifndef DIRECTORY
+#define DIRECTORY
+#include "Directory.cpp"
+#endif
+
 #endif

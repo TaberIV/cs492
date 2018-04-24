@@ -15,16 +15,18 @@ public:
 	int size;
 	time_t time_stamp;
 
-	File(string name) {
-		this->name = name;
-		size = 0;
-		time(&time_stamp);
-	}
-
 	File(string name, int size) {
 		this->name = name;
 		this->size = size;
 		time(&time_stamp);
+
+		// Allocate memory in linked list
+	}
+
+	void append(int bytes) {
+		size += bytes;
+
+		// Allocate memory in linked list	
 	}
 
 	string toString() {
@@ -32,6 +34,6 @@ public:
 		string timeString = ctime(&time_stamp);
 		timeString.replace(timeString.length() - 1, 1, " ");
 
-		return sizeString + " " + timeString + name;
+		return sizeString + "\t" + " " + timeString + name;
 	}
 };

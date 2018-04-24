@@ -8,15 +8,9 @@
 ***********************************************/
 
 #include "assign3.h"
-#include "Directory.cpp"
-
-// Functions for commands
-void cd(vector<string> args) {
-	
-}
 
 int main(int argc, char **args) {
-	// Handles arguments---------------------------------------
+	// Handle command line arguments
 	string fileListPath, dirListPath;
 	int diskSize = 512, blockSize = 16;
 
@@ -31,23 +25,29 @@ int main(int argc, char **args) {
 			diskSize = stoi(args[++i]);
 	}
 
+	// Define directory tree
 	Directory *root = new Directory(fileListPath, dirListPath);
-	//---------------------------------------------------------
+	Directory *currDir = root;
 
-	Directory *currentDir = root;
+	Directory *A = root->getSubdir("A");
+	Directory *C = A->getSubdir("C");
+
+	// Accept user commands
 	cout << endl;
-
-	bool exit = false;
 	string input;
-	while (!exit) {
-		cout << currentDir->getPath() << "$ ";
+	bool exiting = false;
+	while (!exiting) {
+		cout << currDir->getPath() << "$ ";
 		getline(cin, input);
 		
-		// Parse arguments
+		// Parse command and arguments
 		while (input[0] == ' ')
 			input = input.substr(1);
 
-		string command = input.substr(0, input.find(' '));
+		string commandStr = input.substr(0, input.find(' '));
+		if (commandStr.compare("") == 0) {
+			continue;
+		}
 
 		vector<string> args;
 		while (input.find(' ') != string::npos) {
@@ -62,12 +62,96 @@ int main(int argc, char **args) {
 				args.push_back(input);
 		}
 
+		// Error checking
+		enum Command {cd, cdUp, ls, mkdir, create, append, remove_, delete_, exit_, dir, prfiles, prdisk, none};
 		string commands[] = {"cd", "cd..", "ls", "mkdir", "create", "append", "remove", "delete", "exit", "dir", "prfiles", "prdisk"};
-		string commandFunctions[] = {
+		int commandArgs[] = {1, 0, 0, 1, 1, 2, 2, 1, 0, 0, 0, 0};
 
+		Command command = none;
+		for (int i = 0; i < command; i++) {
+			if (commandStr.compare(commands[i]) == 0)
+				command = (Command) i;
 		}
 
-		// Execute commands
+		bool error = false;
+		string errorMsg = commandStr + ": ";
+		if (command == none) {
+			errorMsg += "command not found";
+			error = true;
+		}
+		else if (commandArgs[command] != args.size()) {
+			errorMsg += "wrong number of arguments";
+			error = true;
+		}
+
+		// Execute command
+		Directory *newDir;
+		File *f;
+		if (!error) {
+			switch (command) {
+				case cd:
+					newDir = currDir->getSubdir(args[0]);
+					
+					if (newDir != NULL)
+						currDir = newDir;
+					else {
+						error = true;
+						errorMsg += args[0] + ": No such directory";
+					}
+					break;
+				case cdUp:
+					newDir = currDir->getParent();
+					if (newDir != NULL)
+						currDir = newDir;
+					break;
+				case ls:
+					currDir->ls();
+					break;
+				case mkdir:
+					if (currDir->getSubdir(args[0]) == NULL)
+						currDir->addDir(args[0]);
+					else {
+						error = true;
+						errorMsg += "cannot create directory '" + args[0] + "': File exists";
+					}
+					break;
+				case create:
+					if (currDir->getFile(args[0]) == NULL)
+						currDir->addFile(args[0], 0);
+					else {
+						error = true;
+						errorMsg += "cannot create file '" + args[0] + "': File exists";
+					}
+					break;
+				case append:
+					f = currDir->getFile(args[0]);
+					if (f != NULL)
+						f->append(stoi(args[1]));
+					else {
+						error = true;
+						errorMsg += args[0] + "': No such file";
+					}
+					break;
+				case remove_:
+					break;
+				case delete_:
+					break;
+				case exit_:
+					break;
+				case dir:
+					break;
+				case prfiles:
+					break;
+				case prdisk:
+					break;
+				default:
+					error = true;
+					cout << "This should not be here" << endl;
+			}
+		}
+
+		if (error)
+			cout << errorMsg << endl;
 	}
 
 	// Dealocate data structures
