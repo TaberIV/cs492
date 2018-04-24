@@ -34,7 +34,7 @@ public:
 		size -= bytes;
 		time(&time_stamp);
 
-		// Deallocate memory in linked list	
+		// Deallocate memory in linked list
 	}
 
 	string toString() {

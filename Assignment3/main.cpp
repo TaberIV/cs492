@@ -30,9 +30,6 @@ int main(int argc, char **args) {
 	Directory *root = new Directory(fileListPath, dirListPath);
 	Directory *currDir = root;
 
-	Directory *A = root->getSubdir("A");
-	Directory *C = A->getSubdir("C");
-
 	// Accept user commands
 	cout << endl;
 	string input;
@@ -188,6 +185,7 @@ int main(int argc, char **args) {
 					currDir->dir();
 					break;
 				case prfiles:
+					root->prfiles();
 					break;
 				case prdisk:
 					break;

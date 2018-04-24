@@ -33,8 +33,8 @@ public:
 		dirList.getline(dirPath, maxStrLen); // Skips ./
 		dirList.getline(dirPath, maxStrLen);
 		while (!dirList.eof()) {
+			string subdirParentName;
 			Directory *subdirParent = this;
-			string subdirParentName = "root";
 			string path = dirPath;
 			int nextSlash;
 
@@ -50,7 +50,7 @@ public:
 
 				path = path.substr(nextSlash + 1);
 			}
-			Directory *d = subdirParent->addDir(path);
+			subdirParent->addDir(path);
 			dirList.getline(dirPath, maxStrLen);
 		}
 
@@ -190,6 +190,14 @@ public:
 		}
 
 		
+	}
+
+	void prfiles() {
+		for (int i = 0; i < files.size(); i++)
+			cout << files[i]->toString() <<  endl;
+
+		for (int i = 0; i < subdirs.size(); i++)
+			subdirs[i]->prfiles();
 	}
 
 	void ls() {
