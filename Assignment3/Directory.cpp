@@ -187,9 +187,7 @@ public:
 			for (int i = 0; i < d->subdirs.size(); i++) {
 				dirs.push(d->subdirs[i]);
 			}
-		}
-
-		
+		}		
 	}
 
 	void prfiles() {

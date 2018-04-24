@@ -42,6 +42,6 @@ public:
 		string timeString = ctime(&time_stamp);
 		timeString.replace(timeString.length() - 1, 1, " ");
 
-		return sizeString + "\t" + " " + timeString + name;
+		return timeString + " " + sizeString + "\t" + name;
 	}
 };

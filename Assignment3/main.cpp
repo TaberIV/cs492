@@ -30,6 +30,7 @@ int main(int argc, char **args) {
 	Directory *root = new Directory(fileListPath, dirListPath);
 	Directory *currDir = root;
 
+
 	// Accept user commands
 	cout << endl;
 	string input;
@@ -110,7 +111,7 @@ int main(int argc, char **args) {
 				case ls:
 					currDir->ls();
 					break;
-				// Create files/folders
+				// Access files/folders
 				case mkdir:
 					if (currDir->getSubdir(args[0]) != NULL) {
 						error = true;
@@ -171,7 +172,7 @@ int main(int argc, char **args) {
 						currDir->deleteFile(args[0]);
 					} else if (d != NULL && !d->isEmpty()) {
 						error = true;
-						errorMsg += "cannot delete '" + args[0] + "': it is a non-empty directory";
+						errorMsg += "cannot delete '" + args[0] + "': Directory is not empty";
 					} else if (d != NULL) {
 						currDir->deleteSubdir(args[0]);
 					}
@@ -191,7 +192,7 @@ int main(int argc, char **args) {
 					break;
 				default:
 					error = true;
-					cout << "This should not be here" << endl;
+					errorMsg += "This should not be here";
 			}
 		}
 

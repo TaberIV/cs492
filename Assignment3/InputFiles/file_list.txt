@@ -1,3 +1,4 @@
+  1601902      4 -rw-rw-r--   1 taber    taber          85 Apr 24 04:40 ./A/C/floopyDorp.txt
   1705196      4 -rw-rw-r--   1 taber    taber        3273 Apr 24 04:03 ./B/Users/Matt/Games/Fighting/DragonBallFighterZ
   1705201      4 -rw-rw-r--   1 taber    taber        3277 Apr 24 04:03 ./B/Users/Matt/Games/Fighting/GuiltyGear
   1705199      8 -rw-r--r--   1 taber    taber        6548 Apr 24 04:03 ./B/Users/Matt/Games/RPGs/XenobladeChronicles2
