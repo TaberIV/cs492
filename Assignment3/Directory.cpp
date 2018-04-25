@@ -106,6 +106,15 @@ public:
 		updateTimeStamp();
 	}
 
+	// Deconstructor
+	~Directory() {
+		for (int i = 0; i < files.size(); i++)
+			delete files[i];
+
+		for (int i = 0; i < subdirs.size(); i++)
+			delete subdirs[i];
+	}
+
 	// Getters
 	Directory *getParent() {
 		return parent;

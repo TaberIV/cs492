@@ -23,6 +23,11 @@ public:
 			next = NULL;
 	}
 
+	~Block() {
+		if (next != NULL)
+			delete next;
+	}
+
 	void appendBytes(int bytes) {
 		if (next != NULL)
 			next->appendBytes(bytes);

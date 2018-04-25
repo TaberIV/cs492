@@ -213,4 +213,6 @@ int main(int argc, char **args) {
 	}
 
 	// Dealocate data structures
+	delete root;
+	delete Ldisk;
 }

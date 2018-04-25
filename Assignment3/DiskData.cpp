@@ -37,6 +37,11 @@ public:
 		prev = NULL;
 	}
 
+	~DiskData() {
+		if (next != NULL)
+			delete next;
+	}
+
 	void mergeHT() {
 		if (next == NULL) {
 			prev->next = NULL;
@@ -59,7 +64,7 @@ public:
 			
 			prev->lastBlock = next->lastBlock;
 
-			delete next;
+			next->next = NULL;
 			delete this;
 		}
 	}

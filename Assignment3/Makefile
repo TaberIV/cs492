@@ -8,10 +8,10 @@ OBJ=$(addprefix $(SRCPATH), $(SRC:.cpp=.o))
 
 RM=rm -f
 INCPATH=includes
-CPPFLAGS+= -I $(INCPATH)
+CPPFLAGS+=-ggdb3 -I $(INCPATH)
 
 all: $(OBJ)
-	g++ $(OBJ) -o $(NAME) -lpthread
+	g++ -ggdb3 $(OBJ) -o $(NAME) -lpthread
 
 clean:
 	-$(RM) *~
@@ -31,5 +31,3 @@ fclean: clean
 	-$(RM) $(NAME)
 
 re: fclean all
-
-debug: re g++ -g $(OBJ) -o $(NAME) -lpthread

@@ -30,6 +30,11 @@ public:
 			startBlock = NULL;
 	}
 
+	~File() {
+		if (startBlock != NULL)
+			delete startBlock;
+	}
+
 	void append(int bytes) {
 		if (bytes > getFrag()) {
 			if (!Ldisk->hasSpace(bytes - getFrag()))
