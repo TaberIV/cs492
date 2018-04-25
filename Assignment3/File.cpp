@@ -17,19 +17,28 @@ public:
 	Block *startBlock;
 
 	File(string name, int size) {
+		if (!Ldisk->hasSpace(size))
+			throw NoSpaceException();
+
 		this->name = name;
 		this->size = size;
 		time(&time_stamp);
 
-		// Allocate memory in linked list
 		startBlock = new Block(size);
 	}
 
-	void append(int bytes) {			
+	void append(int bytes) {		
 		size += bytes;
 		time(&time_stamp);
 
-		// Allocate memory in linked list
+		if (bytes > getFrag()) {
+			if (!Ldisk->hasSpace(bytes - getFrag()))
+				throw NoSpaceException();
+			else
+				startBlock->appendBlocks(bytes - getFrag());
+		}
+
+		size += bytes;
 	}
 
 	void remove(int bytes) {			

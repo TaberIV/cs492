@@ -27,4 +27,11 @@ public:
 		if (next != NULL)
 			next->getBlockAddresses(addresses);
 	}
+
+	void appendBlocks(int bytes) {
+		if (next != NULL)
+			next->appendBlocks(bytes);
+		else
+			next = new Block(bytes);
+	}
 };

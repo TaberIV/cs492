@@ -146,19 +146,18 @@ public:
 	}
 
 	void deleteSubdir(string subdirName) {
-		Directory *d = getSubdir(subdirName);
-		updateTimeStamp();
+		int index = subdirs.size();
+		for (int i = 0; i < index; i++)
+			if (subdirs[i]->name == subdirName)
+				index = i;
 
-		if (d != NULL && d->isEmpty()) {
-			int index = subdirs.size();
-			for (int i = 0; i < index; i++) {
-				if (subdirs[i]->name == d->name)
-					index = i;
-			}
+		if (index != files.size()) {
+			Directory *d = subdirs[index];
 			subdirs.erase(subdirs.begin() + index);
-			delete d;
-		}
 
+			delete d;
+			updateTimeStamp();
+		}
 	}
 
 	// File functions

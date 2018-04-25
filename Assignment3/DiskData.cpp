@@ -72,6 +72,10 @@ public:
 			throw NoSpaceException();
 	}
 
+	bool hasSpace(int bytes) {
+		
+	}
+
 	void prdisk() {
 		cout << (free ? "Free: " : "In use: ");
 		cout << firstBlock << "-" << lastBlock << endl;
