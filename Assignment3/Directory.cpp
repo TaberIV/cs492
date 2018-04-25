@@ -11,12 +11,15 @@
 
 class Directory {
 public:
+	time_t time_stamp;
+
 	// Constructor for creating
 	// hierarchicy from input files
 	Directory(string fileListPath, string dirListPath) {
 		// Initialize this directory
 		name = "root";
 		parent = NULL;
+		updateTimeStamp();
 
 		// Setup reading from files
 		ifstream dirList(dirListPath);
@@ -82,7 +85,11 @@ public:
 
 				path = path.substr(nextSlash + 1);
 			}
-			dir->addFile(path, fileSize);
+			try {
+				dir->addFile(path, fileSize);
+			} catch (NoSpaceException &e) {
+				cout << "Cannot create file '" + path + "': Not enough space" << endl;
+			}
 
 			fileList.getline(fileInfo, maxStrLen);
 		}
@@ -96,6 +103,7 @@ public:
 	Directory(string name, Directory *parent) {
 		this->name = name;
 		this->parent = parent;
+		updateTimeStamp();
 	}
 
 	// Getters
@@ -111,10 +119,19 @@ public:
 		return files.size() == 0 && subdirs.size() == 0;
 	}
 
+	// Setters
+	void updateTimeStamp() {
+		time(&time_stamp);
+
+		if (parent != NULL)
+			parent->updateTimeStamp();
+	}
+
 	// Subdirectory functions
 	Directory *addDir(string subdirName) {
 		Directory *d = new Directory(subdirName, this);
 		subdirs.push_back(d);
+		updateTimeStamp();
 
 		return d;
 	}
@@ -130,6 +147,7 @@ public:
 
 	void deleteSubdir(string subdirName) {
 		Directory *d = getSubdir(subdirName);
+		updateTimeStamp();
 
 		if (d != NULL && d->isEmpty()) {
 			int index = subdirs.size();
@@ -146,7 +164,11 @@ public:
 	// File functions
 	File *addFile(string fileName, int size) {
 		File *f = new File(fileName, size);
-		files.push_back(f);
+
+		if (f != NULL) {
+			files.push_back(f);
+			updateTimeStamp();
+		}
 
 		return f;
 	}
@@ -161,17 +183,30 @@ public:
 	}
 
 	void deleteFile(string fileName) {
-		File *f = getFile(fileName);
+		int index = files.size();
+		for (int i = 0; i < index; i++)
+			if (files[i]->name == fileName)
+				index = i;
 
-		if (f != NULL) {
-			int index = files.size();
-			for (int i = 0; i < index; i++) {
-				if (files[i]->name == f->name)
-					index = i;
-			}
+		if (index != files.size()) {
+			File *f = files[index];
 			files.erase(files.begin() + index);
+
 			delete f;
+			updateTimeStamp();
 		}
+	}
+
+	int getFrag() {
+		int frag = 0;
+
+		for (int i = 0; i < files.size(); i++)
+			frag += files[i]->getFrag();
+
+		for (int i = 0; i < subdirs.size(); i++)
+			frag += subdirs[i]->getFrag();
+
+		return frag;
 	}
 
 	// Print functions
@@ -192,16 +227,36 @@ public:
 
 	void prfiles() {
 		for (int i = 0; i < files.size(); i++)
-			cout << files[i]->toString() <<  endl;
+			cout << files[i]->prfile() <<  endl;
 
 		for (int i = 0; i < subdirs.size(); i++)
 			subdirs[i]->prfiles();
 	}
 
+	string toString() {
+		string sizeString = to_string(getSize());
+		string timeString = ctime(&time_stamp);
+		timeString.replace(timeString.length() - 1, 1, " ");
+
+		return timeString + " " + sizeString + "\t" + name;
+	}
+
+	int getSize() {
+		int size = 0;
+
+		for (int i = 0; i < files.size(); i++)
+			size += files[i]->size;
+
+		for (int i = 0; i < subdirs.size(); i++)
+			size += subdirs[i]->getSize();
+
+		return size;
+	}
+
 	void ls() {
 		cout << "Subdirectories:" << endl ;
 		for (int i = 0; i < subdirs.size(); i++) {
-			cout << subdirs[i]->name << endl;
+			cout << subdirs[i]->toString() << endl;
 		}
 
 		cout << "\nFiles:" << endl;

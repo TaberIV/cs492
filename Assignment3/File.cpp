@@ -14,6 +14,7 @@ public:
 	string name;
 	int size;
 	time_t time_stamp;
+	Block *startBlock;
 
 	File(string name, int size) {
 		this->name = name;
@@ -21,13 +22,14 @@ public:
 		time(&time_stamp);
 
 		// Allocate memory in linked list
+		startBlock = new Block(size);
 	}
 
 	void append(int bytes) {			
 		size += bytes;
 		time(&time_stamp);
 
-		// Allocate memory in linked list	
+		// Allocate memory in linked list
 	}
 
 	void remove(int bytes) {			
@@ -43,5 +45,26 @@ public:
 		timeString.replace(timeString.length() - 1, 1, " ");
 
 		return timeString + " " + sizeString + "\t" + name;
+	}
+
+	string prfile() {
+		string ret = toString();
+
+		ret += "\t| ";
+
+		vector<int> addresses;
+		startBlock->getBlockAddresses(addresses);
+
+		for (int i = 0; i < addresses.size(); i++)
+			ret += to_string(addresses[i]) + " ";
+
+		return ret;
+	}
+
+	int getFrag() {
+		if (size % Ldisk->blockSize == 0)
+			return 0;
+		else
+			return Ldisk->blockSize - (size % Ldisk->blockSize);
 	}
 };

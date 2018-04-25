@@ -4,10 +4,4 @@
 ./B
 ./B/Users
 ./B/Users/Matt
-./B/Users/Matt/Games
-./B/Users/Matt/Games/Fighting
-./B/Users/Matt/Games/RPGs
 ./B/Users/Taber
-./B/Users/Taber/Code
-./B/Users/Taber/Code/C++
-./B/Users/Taber/Code/Javascript

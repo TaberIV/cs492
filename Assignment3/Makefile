@@ -32,3 +32,4 @@ fclean: clean
 
 re: fclean all
 
+debug: re g++ -g $(OBJ) -o $(NAME) -lpthread

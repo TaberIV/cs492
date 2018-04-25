@@ -23,13 +23,15 @@ int main(int argc, char **args) {
 		else if (arg.compare("-s") == 0)
 			diskSize = stoi(args[++i]);
 		else if (arg.compare("-b") == 0)
-			diskSize = stoi(args[++i]);
+			blockSize = stoi(args[++i]);
 	}
+
+	// Initialize global Disk Blocks
+	Ldisk = new DiskData(diskSize, blockSize);
 
 	// Define directory tree
 	Directory *root = new Directory(fileListPath, dirListPath);
 	Directory *currDir = root;
-
 
 	// Accept user commands
 	cout << endl;
@@ -126,11 +128,18 @@ int main(int argc, char **args) {
 						error = true;
 						errorMsg += "cannot create file '" + args[0] + "': File exists";
 					}
-					else
-						currDir->addFile(args[0], 0);
+					else {
+						try {
+							f = currDir->addFile(args[0], 0);
+						} catch (NoSpaceException &e) {
+							error = true;
+							errorMsg += "cannot create file '" + args[0] + "': Not enough space";
+						}
+					}
 
 					break;
 				case append:
+					currDir->updateTimeStamp();
 					f = currDir->getFile(args[0]);
 					bytes = stoi(args[1]);
 
@@ -189,6 +198,8 @@ int main(int argc, char **args) {
 					root->prfiles();
 					break;
 				case prdisk:
+					Ldisk->prdisk();
+					cout << "Fragmentation: " << root->getFrag() << endl;
 					break;
 				default:
 					error = true;

@@ -19,6 +19,26 @@
 
 using namespace std;
 
+// Define out of space exception
+struct NoSpaceException : public exception {
+	const char * what () const throw () {
+		return "Not enough space";
+	}
+};
+
+#ifndef DISKDATA
+#define DISKDATA
+#include "DiskData.cpp"
+
+// Define global Disk Blocks
+DiskData *Ldisk;
+#endif
+
+#ifndef BLOCK
+#define BLOCK
+#include "Block.cpp"
+#endif
+
 #ifndef FILE
 #define FILE
 #include "File.cpp"
