@@ -30,11 +30,11 @@ public:
 			next = new Block(bytes);
 	}
 
-	int removeBytes(int bytes, int bytesInLastBlock) {
+	int removeBytes(int bytes, int &bytesInLastBlock) {
 		if (next != NULL) {
 			bytes = next->removeBytes(bytes, bytesInLastBlock);
 		
-			if (bytes > 0) {
+			if (bytes > bytesInLastBlock) {
 				bytes -= bytesInLastBlock;
 				bytesInLastBlock = Ldisk->blockSize;
 

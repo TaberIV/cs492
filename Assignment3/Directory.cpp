@@ -191,6 +191,7 @@ public:
 			File *f = files[index];
 			files.erase(files.begin() + index);
 
+			f->remove(f->size);
 			delete f;
 			updateTimeStamp();
 		}

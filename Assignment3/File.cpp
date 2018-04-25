@@ -48,18 +48,14 @@ public:
 
 	void remove(int bytes) {
 		int bytesInLastBlock = Ldisk->blockSize - getFrag();
-		
+
 		if (bytes > bytesInLastBlock) {
 			int blocksLeft = startBlock->removeBytes(bytes, bytesInLastBlock);
-			
-			if (blocksLeft != 0)
-				cout << "AAAAHHHHHHH" << endl;
 		}
 
-		cout << size << " - " << bytes << " = ";
 		size -= bytes;
-		cout << size << endl;
-		if (size = 0) {
+		if (size == 0) {
+			Ldisk->freeBlock(startBlock->blockNum);
 			delete startBlock;
 			startBlock = NULL;
 		}			
@@ -84,7 +80,6 @@ public:
 		ret += timeString;
 
 		// Path name and size
-		cout << name << " size: " << size << endl;
 		ret += to_string(size) + "\t";
 		ret += path + "/" + name ;
 

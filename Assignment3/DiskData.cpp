@@ -19,6 +19,7 @@ public:
 		int numBlocks = diskSize / blockSize;
 
 		next = NULL;
+		prev = NULL;
 
 		firstBlock = 0;
 		lastBlock = numBlocks - 1;
@@ -26,8 +27,46 @@ public:
 		free = true;
 	}
 
-	void splitBottom() {
-		DiskData *nextBlock = new DiskData(firstBlock + 1, lastBlock);
+	DiskData(int firstBlock, int lastBlock, bool free, int blockSize) {
+		this->firstBlock = firstBlock;
+		this->lastBlock = lastBlock;
+		this->free = free;
+		this->blockSize = blockSize;
+
+		next = NULL;
+		prev = NULL;
+	}
+
+	void mergeHT() {
+		if (next == NULL) {
+			prev->next = NULL;
+			prev->lastBlock = lastBlock;
+			delete this;
+		}
+		else if (prev == NULL) {
+			free = next->free;
+			lastBlock = next->lastBlock;
+
+			DiskData *nextPointer = next;
+			next = next->next;
+			delete nextPointer;
+
+			next->prev = this;
+		} else {
+			prev->next = next->next;
+			if (prev->next != NULL)
+				prev->next->prev = prev;
+			
+			prev->lastBlock = next->lastBlock;
+
+			delete next;
+			delete this;
+		}
+	}
+
+	void splitFromTail() {
+		DiskData *nextBlock = new DiskData(firstBlock + 1, lastBlock, !free, blockSize);
+		lastBlock = firstBlock;
 
 		if (next != NULL)
 			next->prev = nextBlock;
@@ -36,44 +75,40 @@ public:
 		nextBlock->prev = this;
 		next = nextBlock;
 
-		next->firstBlock = firstBlock + 1;
-		next->lastBlock = lastBlock;
-
-		lastBlock = firstBlock;
+		next->free = free;
 		free = !free;
 	}
 
-	void splitTop() {
-		prev->lastBlock = firstBlock;
+	void splitOffTail() {
+		DiskData *prevBlock = new DiskData(firstBlock, lastBlock - 1, free, blockSize);
+		firstBlock = lastBlock;
+		free = !free;
 
-		if (firstBlock != lastBlock)
-			firstBlock += 1;
-		else if (next == NULL) {
-			prev->next = NULL;
-			delete this;
-		} else {
-			prev->next = next->next;
-			prev->next->prev = prev;
-			prev->lastBlock = next->lastBlock;
+		if (prev != NULL)
+			prev->next = prevBlock;
 
-			delete next;
-			delete this;
-		}
+		prevBlock->prev = prev;
+		prevBlock->next = this;
+		prev = prevBlock;
+
 	}
 
-	void split() {
-		if (prev == NULL) {
-			splitBottom();
-		} else {
-			splitTop();
-		}
+	void splitOffHead() {
+		firstBlock++;
+		prev->lastBlock++;
 	}
 
 	int getBlock() {
 		if (free) {
 			int openBlock = firstBlock;
 
-			split();
+			if (firstBlock == lastBlock) {
+				mergeHT();
+			} else if (prev == NULL) {
+				splitFromTail();
+			} else {
+				splitOffHead();
+			}
 			
 			return openBlock;
 		}
@@ -83,13 +118,50 @@ public:
 			throw NoSpaceException();
 	}
 
-	void freeBlock(int blockNum) {
-		if (blockNum > lastBlock)
-			return next->freeBlock(blockNum);
-		if (free)
-			cout << "So this is pretty bad" << endl;
+	int freeBlock(int blockNum) {
+		if (blockNum > lastBlock) {
+			next->freeBlock(blockNum);
+		} else {
+			if (free)
+				cout << "Already freed" << endl;
 
-		split();
+			if (firstBlock == lastBlock) {
+				mergeHT();
+			} else if (blockNum == firstBlock) {
+				if (prev != NULL) {
+					splitOffHead();
+				} else {
+					splitFromTail();
+				}
+			} else if (blockNum == lastBlock) {
+				if (next != NULL) {
+					lastBlock--;
+					next->firstBlock--;
+				} else if (prev != NULL)
+					splitOffTail();
+				else {
+					DiskData *nextBlock = new DiskData(lastBlock, lastBlock, !free, blockSize);
+					nextBlock->prev = this;
+					next = nextBlock;
+					
+					firstBlock = 0;
+					lastBlock = lastBlock - 1;
+				}
+			} else {
+				DiskData *nextBlock = new DiskData(blockNum, blockNum, !free, blockSize);
+				DiskData *nextNextBlock = new DiskData(blockNum + 1, lastBlock, free, blockSize);
+				lastBlock = blockNum - 1;
+
+				if (next != NULL)
+					next->prev = nextNextBlock;
+
+				nextBlock->prev = this;
+				nextBlock->next = nextNextBlock;
+				nextNextBlock->next = next;
+				nextNextBlock->prev = nextBlock;
+				next = nextBlock;
+			}
+		}
 	}
 
 	bool hasSpace(int bytes) {
