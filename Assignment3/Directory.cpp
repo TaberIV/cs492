@@ -226,7 +226,7 @@ public:
 
 	void prfiles() {
 		for (int i = 0; i < files.size(); i++)
-			cout << files[i]->prfile() <<  endl;
+			cout << files[i]->prfile(getPath()) <<  endl;
 
 		for (int i = 0; i < subdirs.size(); i++)
 			subdirs[i]->prfiles();

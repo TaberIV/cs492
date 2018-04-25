@@ -73,7 +73,15 @@ public:
 	}
 
 	bool hasSpace(int bytes) {
-		
+		if (free)
+			bytes = bytes - getNumBlocks() * blockSize;
+
+		if (bytes <= 0)
+			return true;
+		else if (next != NULL)
+			return next->hasSpace(bytes);
+		else
+			return false;
 	}
 
 	void prdisk() {
@@ -85,6 +93,10 @@ public:
 	}
 
 private:
+	int getNumBlocks() {
+		return lastBlock - firstBlock + 1;
+	}
+
 	DiskData *next, *prev;
 	int firstBlock;
 	int lastBlock;

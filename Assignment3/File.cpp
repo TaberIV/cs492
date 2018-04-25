@@ -28,24 +28,26 @@ public:
 	}
 
 	void append(int bytes) {		
-		size += bytes;
-		time(&time_stamp);
-
 		if (bytes > getFrag()) {
 			if (!Ldisk->hasSpace(bytes - getFrag()))
 				throw NoSpaceException();
 			else
-				startBlock->appendBlocks(bytes - getFrag());
+				startBlock->appendBytes(bytes - getFrag());
 		}
 
 		size += bytes;
+		time(&time_stamp);
 	}
 
-	void remove(int bytes) {			
-		size -= bytes;
+	void remove(int bytes) {
 		time(&time_stamp);
 
-		// Deallocate memory in linked list
+		int bytesInLastBlock = Ldisk->blockSize - getFrag();
+		
+		if (bytes > bytesInLastBlock)
+			startBlock->removeBytes(bytes);
+
+		size -= bytes;
 	}
 
 	string toString() {
@@ -56,11 +58,22 @@ public:
 		return timeString + " " + sizeString + "\t" + name;
 	}
 
-	string prfile() {
-		string ret = toString();
+	string prfile(string path) {
+		string ret = "";
 
-		ret += "\t| ";
+		// Timestamp
+		string timeString = ctime(&time_stamp);
+		timeString.replace(timeString.length() - 1, 1, "  ");
+		ret += timeString;
 
+		// Path name and size
+		ret += to_string(size) + "\t";
+		ret += path + "/" + name ;
+
+		// Memory info
+		while (ret.length() < 60)
+			ret += ' ';
+		ret += "| ";
 		vector<int> addresses;
 		startBlock->getBlockAddresses(addresses);
 

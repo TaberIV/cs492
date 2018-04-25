@@ -64,7 +64,7 @@ int main(int argc, char **args) {
 		}
 
 		// Error checking
-		enum Command {cd, cdUp, ls, mkdir, create, append, remove_, delete_, exit_, dir, prfiles, prdisk, none};
+		enum Command {cd, cdUp, ls, mkdir, create, append, remove, delete_, exit_, dir, prfiles, prdisk, none};
 		string commands[] = {"cd", "cd..", "ls", "mkdir", "create", "append", "remove", "delete", "exit", "dir", "prfiles", "prdisk"};
 		int commandArgs[] = {1, 0, 0, 1, 1, 2, 2, 1, 0, 0, 0, 0};
 
@@ -145,7 +145,7 @@ int main(int argc, char **args) {
 
 					if (f == NULL) {
 						error = true;
-						errorMsg += args[0] + "': No such file";
+						errorMsg +=  args[0] + ": No such file";
 					} else if (bytes <= 0) {
 						error = true;
 						errorMsg += "bytes to append must be positive.";
@@ -153,7 +153,7 @@ int main(int argc, char **args) {
 						f->append(bytes);
 
 					break;
-				case remove_:
+				case remove:
 					f = currDir->getFile(args[0]);
 					bytes = stoi(args[1]);
 
@@ -192,7 +192,7 @@ int main(int argc, char **args) {
 					exiting = true;
 					break;
 				case dir:
-					currDir->dir();
+					root->dir();
 					break;
 				case prfiles:
 					root->prfiles();
