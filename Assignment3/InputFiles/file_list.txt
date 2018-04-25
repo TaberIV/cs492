@@ -1,5 +1,6 @@
   1601902      4 -rw-rw-r--   1 taber    taber          85 Apr 24 04:40 ./A/C/floopyDorp.txt
-  1705206      4 -rw-r--r--   1 taber    taber           9 Apr 25 01:37 ./B/Users/Matt/DBFZ.exe
-  1704078      4 -rw-rw-r--   1 taber    taber          10 Apr 25 01:36 ./B/Users/Matt/UNIEL.exe
+  1601935      0 -rw-rw-r--   1 taber    taber           0 Apr 25 01:59 ./git
+  1704078      4 -rw-rw-r--   1 taber    taber           9 Apr 25 01:54 ./B/Users/Matt/UNIST
+  1705206      4 -rw-rw-r--   1 taber    taber          10 Apr 25 01:55 ./B/Users/Matt/James
   1705215      4 -rw-r--r--   1 taber    taber          30 Apr 25 01:38 ./B/Users/Taber/Code/main.cpp
   1601895      4 -rw-r--r--   1 taber    taber          41 Apr 24 02:42 ./README.md

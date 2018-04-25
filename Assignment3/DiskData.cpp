@@ -26,50 +26,70 @@ public:
 		free = true;
 	}
 
+	void splitBottom() {
+		DiskData *nextBlock = new DiskData(firstBlock + 1, lastBlock);
+
+		if (next != NULL)
+			next->prev = nextBlock;
+
+		nextBlock->next = next;
+		nextBlock->prev = this;
+		next = nextBlock;
+
+		next->firstBlock = firstBlock + 1;
+		next->lastBlock = lastBlock;
+
+		lastBlock = firstBlock;
+		free = !free;
+	}
+
+	void splitTop() {
+		prev->lastBlock = firstBlock;
+
+		if (firstBlock != lastBlock)
+			firstBlock += 1;
+		else if (next == NULL) {
+			prev->next = NULL;
+			delete this;
+		} else {
+			prev->next = next->next;
+			prev->next->prev = prev;
+			prev->lastBlock = next->lastBlock;
+
+			delete next;
+			delete this;
+		}
+	}
+
+	void split() {
+		if (prev == NULL) {
+			splitBottom();
+		} else {
+			splitTop();
+		}
+	}
+
 	int getBlock() {
 		if (free) {
-			int freeBlock = firstBlock;
+			int openBlock = firstBlock;
 
-			if (prev == NULL) {
-				DiskData *nextBlock = new DiskData(firstBlock + 1, lastBlock);
-
-				if (next != NULL)
-					next->prev = nextBlock;
-
-				nextBlock->next = next;
-				nextBlock->prev = this;
-				next = nextBlock;
-
-				next->firstBlock = firstBlock + 1;
-				next->lastBlock = lastBlock;
-
-				lastBlock = firstBlock;
-				free = false;
-			} else {
-				prev->lastBlock = firstBlock;
-
-				if (firstBlock != lastBlock)
-					firstBlock += 1;
-				else if (next == NULL) {
-					prev->next = NULL;
-
-					delete this;
-				} else {
-					prev->next = next->next;
-					prev->next->prev = prev;
-					prev->lastBlock = next->lastBlock;
-
-					delete next;
-					delete this;
-				}
-			}
+			split();
 			
-			return freeBlock;
+			return openBlock;
 		}
 		else if (next != NULL)
 			return next->getBlock();
 		else
 			throw NoSpaceException();
+	}
+
+	void freeBlock(int blockNum) {
+		if (blockNum > lastBlock)
+			return next->freeBlock(blockNum);
+		if (free)
+			cout << "So this is pretty bad" << endl;
+
+		split();
 	}
 
 	bool hasSpace(int bytes) {

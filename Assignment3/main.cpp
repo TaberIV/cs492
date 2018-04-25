@@ -129,12 +129,7 @@ int main(int argc, char **args) {
 						errorMsg += "cannot create file '" + args[0] + "': File exists";
 					}
 					else {
-						try {
-							f = currDir->addFile(args[0], 0);
-						} catch (NoSpaceException &e) {
-							error = true;
-							errorMsg += "cannot create file '" + args[0] + "': Not enough space";
-						}
+						f = currDir->addFile(args[0], 0);
 					}
 
 					break;
@@ -149,8 +144,14 @@ int main(int argc, char **args) {
 					} else if (bytes <= 0) {
 						error = true;
 						errorMsg += "bytes to append must be positive.";
-					} else
-						f->append(bytes);
+					} else {
+						try {
+							f->append(bytes);
+						} catch (NoSpaceException &e) {
+							error = true;
+							errorMsg += "Out of space";
+						}
+					}
 
 					break;
 				case remove:

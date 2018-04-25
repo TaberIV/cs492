@@ -24,15 +24,22 @@ public:
 		this->size = size;
 		time(&time_stamp);
 
-		startBlock = new Block(size);
+		if (size > 0)
+			startBlock = new Block(size);
+		else
+			startBlock = NULL;
 	}
 
-	void append(int bytes) {		
+	void append(int bytes) {
 		if (bytes > getFrag()) {
 			if (!Ldisk->hasSpace(bytes - getFrag()))
 				throw NoSpaceException();
-			else
-				startBlock->appendBytes(bytes - getFrag());
+			else {
+				if (startBlock != NULL)
+					startBlock->appendBytes(bytes - getFrag());
+				else
+					startBlock = new Block(bytes);
+			}
 		}
 
 		size += bytes;
@@ -40,14 +47,24 @@ public:
 	}
 
 	void remove(int bytes) {
-		time(&time_stamp);
-
 		int bytesInLastBlock = Ldisk->blockSize - getFrag();
 		
-		if (bytes > bytesInLastBlock)
-			startBlock->removeBytes(bytes);
+		if (bytes > bytesInLastBlock) {
+			int blocksLeft = startBlock->removeBytes(bytes, bytesInLastBlock);
+			
+			if (blocksLeft != 0)
+				cout << "AAAAHHHHHHH" << endl;
+		}
 
+		cout << size << " - " << bytes << " = ";
 		size -= bytes;
+		cout << size << endl;
+		if (size = 0) {
+			delete startBlock;
+			startBlock = NULL;
+		}			
+
+		time(&time_stamp);
 	}
 
 	string toString() {
@@ -67,18 +84,22 @@ public:
 		ret += timeString;
 
 		// Path name and size
+		cout << name << " size: " << size << endl;
 		ret += to_string(size) + "\t";
 		ret += path + "/" + name ;
 
 		// Memory info
-		while (ret.length() < 60)
-			ret += ' ';
-		ret += "| ";
-		vector<int> addresses;
-		startBlock->getBlockAddresses(addresses);
+		if (startBlock != NULL) {
+			while (ret.length() < 60)
+				ret += ' ';
+			ret += "| ";
+			vector<int> addresses;
 
-		for (int i = 0; i < addresses.size(); i++)
-			ret += to_string(addresses[i]) + " ";
+			startBlock->getBlockAddresses(addresses);
+
+			for (int i = 0; i < addresses.size(); i++)
+				ret += to_string(addresses[i]) + " ";
+		}
 
 		return ret;
 	}
